@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Animating Letters in Shades of Green</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f2f2f2;
+    }
+    .animated-letter {
+      display: inline-block;
+      font-size: 48px;
+      font-weight: bold;
+      animation: colorChange 2s infinite;
+    }
+    @keyframes colorChange {
+      0% {
+        color: #00ff00; /* Green */
+      }
+      25% {
+        color: #40bf00; /* Lighter Green */
+      }
+      50% {
+        color: #80ff00; /* Even Lighter Green */
+      }
+      75% {
+        color: #40bf00; /* Lighter Green */
+      }
+      100% {
+        color: #00ff00; /* Green */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="randomWordContainer">
+    <!-- The random word will be inserted here dynamically -->
+  </div>
+
+  <script>
+    const words = [
+      'apple',
+      'banana',
+      'cherry',
+      'grape',
+      'orange',
+      'lemon',
+      'kiwi',
+      'watermelon',
+      'pear',
+      'strawberry',
+    ];
+
+    function getRandomWord() {
+      return words[Math.floor(Math.random() * words.length)];
+    }
+
+    function animateWord(word) {
+      const randomWordContainer = document.getElementById('randomWordContainer');
+      randomWordContainer.innerHTML = ''; // Clear previous content
+
+      for (const letter of word) {
+        const animatedLetter = document.createElement('span');
+        animatedLetter.textContent = letter;
+        animatedLetter.classList.add('animated-letter');
+        randomWordContainer.appendChild(animatedLetter);
+      }
+    }
+
+    function startAnimation() {
+      const randomWord = getRandomWord();
+      animateWord(randomWord);
+
+      // Repeat the animation every 5 seconds
+      setTimeout(startAnimation, 5000);
+    }
+
+    // Start the animation on page load
+    startAnimation();
+  </script>
+</body>
+</html>
