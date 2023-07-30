@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Animating Letters in Shades of Green</title>
+  <title>p0x.io</title>
   <style>
     body {
       display: flex;
@@ -11,7 +11,7 @@
       align-items: center;
       height: 100vh;
       margin: 0;
-      background-color: #f2f2f2;
+      background-color: black;
     }
     .animated-letter {
       display: inline-block;
@@ -43,23 +43,22 @@
     <!-- The random word will be inserted here dynamically -->
   </div>
 
+  <script src="js/rockyou-30.js"></script>
   <script>
-    const words = [
-      'apple',
-      'banana',
-      'cherry',
-      'grape',
-      'orange',
-      'lemon',
-      'kiwi',
-      'watermelon',
-      'pear',
-      'strawberry',
-    ];
 
-    function getRandomWord() {
-      return words[Math.floor(Math.random() * words.length)];
+
+    function getRandomWords(wordsList, numWords) {
+        const shuffledWords = wordsList.sort(() => 0.5 - Math.random());
+        return shuffledWords.slice(0, numWords);
     }
+
+    function displayRandomWords() {
+        const wordsDisplay = document.getElementById('wordsDisplay');
+        const randomWords = getRandomWords(wordList, 1);
+
+        wordsDisplay.textContent = randomWords.join(' ');
+    }
+
 
     function animateWord(word) {
       const randomWordContainer = document.getElementById('randomWordContainer');
@@ -74,7 +73,7 @@
     }
 
     function startAnimation() {
-      const randomWord = getRandomWord();
+      const randomWord = getRandomWords(wordList, 1);
       animateWord(randomWord);
 
       // Repeat the animation every 5 seconds

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>p0x.io</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+        }
+
+        .cursor {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 2px;
+            height: 16px;
+            background-color: lime;
+            animation: blink 1s infinite;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="cursor"><button id="randomPageButton">...</button></div>
+
+    <script>
+        const pageUrls = [
+            'init.html',
+            'misc.html',
+            'ouykcor.html',
+        ];
+
+        function goToRandomPage() {
+            const randomIndex = Math.floor(Math.random() * pageUrls.length);
+            const randomPageUrl = pageUrls[randomIndex];
+            window.location.href = randomPageUrl;
+        }
+
+        const randomPageButton = document.getElementById('randomPageButton');
+        randomPageButton.addEventListener('click', goToRandomPage);
+    </script>
+</body>
+
+</html>
