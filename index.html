@@ -71,11 +71,12 @@
 
         function displayRandomWords() {
             const wordsDisplay = document.getElementById('wordsDisplay');
-            const randomWords = getRandomWords(wordList, 3);
+            const randomWords = getRandomWords(wordList, 4);
 
             wordsDisplay.textContent = randomWords.join(' ');
         }
-        displayRandomWords();
+        window.onload = displayRandomWords
+        setInterval(displayRandomWords, 30000);
     </script>
 </body>
 
