@@ -2,82 +2,53 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>p0x.io</title>
-    <link href="https://infosec.exchange/@poxonus" rel="me">
-    <link href="https://hachyderm.io/@poxonus" rel="me">
-    <style>
-        body {
-            background-color: black;
-            color: lime;
-            font-family: monospace;
-            font-size: 36px;
-            line-height: 1.5;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://infosec.exchange/@poxonus" rel="me">
+  <link href="https://hachyderm.io/@poxonus" rel="me">
+  <title>p0x.io</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: black;
+    }
 
-        .cursor {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 2px;
-            height: px;
-            display: inline-block;
-            background-color: lime;
-            animation: blink 1s infinite;
-            transform: translate(-50%, -50%);
-        }
+    .cursor {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 2px;
+      height: 36px;
+      background-color: lime;
+      animation: blink 1s infinite;
+      transform: translate(-50%, -50%);
+    }
 
-        @keyframes blink {
-
-            0%,
-            100% {
-                background-color: lime;
-            }
-
-            50% {
-                background-color: transparent;
-            }
-        }
-
-        .word-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            animation: blink 1s infinite;
-            transform: translate(-50%, -50%);
-        }
-    </style>
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+  </style>
 </head>
 
 <body>
-    <div class="word-container" id="wordsDisplay">
-        <!-- Random words will be displayed here -->
-    </div>
+  <div class="cursor"></div>
+  <script>
+    const pageUrls = [
+      'passphrase.html',
+      'ouykcor.html',
+    ];
 
-    <script src="js/wordlist.js"></script>
-    <script>
-        function getRandomWords(wordsList, numWords) {
-            const shuffledWords = wordsList.sort(() => 0.5 - Math.random());
-            return shuffledWords.slice(0, numWords);
-        }
+    function goToRandomPage() {
+      const randomIndex = Math.floor(Math.random() * pageUrls.length);
+      const randomPageUrl = pageUrls[randomIndex];
+      window.location.href = randomPageUrl;
+    }
 
-        function displayRandomWords() {
-            const wordsDisplay = document.getElementById('wordsDisplay');
-            const randomWords = getRandomWords(wordList, 4);
-
-            wordsDisplay.textContent = randomWords.join(' ');
-        }
-        window.onload = displayRandomWords
-        setInterval(displayRandomWords, 30000);
-    </script>
+    setInterval(goToRandomPage, 15000);
+  </script>
 </body>
 
 </html>

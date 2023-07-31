@@ -6,31 +6,36 @@
   <title>p0x.io</title>
   <style>
     body {
+
       display: flex;
       justify-content: center;
       align-items: center;
+      position: absolute;
+      left: 50%;
       height: 100vh;
       margin: 0;
       background-color: black;
+      color: lime;
+      font-size: 48px;
     }
     .animated-letter {
       display: inline-block;
       font-size: 48px;
       font-weight: bold;
-      animation: colorChange 2s infinite;
+      animation: colorChange 3s infinite;
     }
     @keyframes colorChange {
       0% {
         color: #00ff00; /* Green */
       }
       25% {
-        color: #40bf00; /* Lighter Green */
+        color: lime; /* Lighter Green */
       }
       50% {
-        color: #80ff00; /* Even Lighter Green */
+        color: yellowgreen; /* Even Lighter Green */
       }
       75% {
-        color: #40bf00; /* Lighter Green */
+        color: lime; /* Lighter Green */
       }
       100% {
         color: #00ff00; /* Green */
@@ -39,8 +44,9 @@
   </style>
 </head>
 <body>
+  password: 
   <div id="randomWordContainer">
-    <!-- The random word will be inserted here dynamically -->
+  <!-- The random word will be inserted here dynamically -->
   </div>
 
   <script src="js/rockyou-30.js"></script>
@@ -76,8 +82,8 @@
       const randomWord = getRandomWords(wordList, 1);
       animateWord(randomWord);
 
-      // Repeat the animation every 5 seconds
-      setTimeout(startAnimation, 5000);
+      // Repeat the animation every 3 seconds
+      setTimeout(startAnimation, 3000);
     }
 
     // Start the animation on page load
