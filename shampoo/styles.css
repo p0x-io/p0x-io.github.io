@@ -1,6 +1,6 @@
 body {
     background-color: black;
-    color: lime;
+    color: pink;
     font-family: monospace;
     font-size: 36px;
     line-height: 1.5;
@@ -18,5 +18,28 @@ body {
 }
 
 .highlighted {
-    background-color: green;
+    animation: colorChange 1s infinite alternate;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+
+@keyframes colorChange {
+    0% {
+        color: palevioletred;
+    }
+
+    50% {
+        color: white
+    }
+
+    100% {
+        color: red;
+    }
 }
