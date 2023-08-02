@@ -14,8 +14,8 @@ def write_list_to_js(array, file_path):
 
 
 if __name__ == '__main__':
-    txt_file_path = 'rockyou-30.txt'  # Replace with the path to your .txt file
-    js_file_path = 'js/rockyou-30.js'   # Replace with the desired path for the output .js file
+    txt_file_path = 'chatgpt-1.txt'  # Replace with the path to your .txt file
+    js_file_path = 'js/chatgpt-1.js'   # Replace with the desired path for the output .js file
 
     input_list = read_list_from_txt(txt_file_path)
     write_list_to_js(input_list, js_file_path)
