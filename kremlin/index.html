@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>p0x.io | Kremlin Kleaners</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="textBlock"></div>
+
+    <script src="./chatgpt-1.js"></script>
+    <script>
+
+        const textBlockElement = document.getElementById('textBlock');
+        let currentBlockIndex = 0;
+        let currentWordIndex = 0;
+
+        function highlightNextWord() {
+            const currentBlock = textBlocks[currentBlockIndex];
+            const words = currentBlock.split(' ');
+
+            if (currentWordIndex >= words.length) {
+                // Move to the next block of text
+                currentBlockIndex = (currentBlockIndex + 1) % textBlocks.length;
+                currentWordIndex = 0;
+                setTimeout(highlightNextWord, 700); // Wait for 1 second before highlighting the next block
+            } else {
+                // Highlight the current word
+                const highlightedText = words.map((word, index) => {
+                    if (index === currentWordIndex) {
+                        return `<span class="highlighted">${word}</span>`;
+                    } else {
+                        return word;
+                    }
+                }).join(' ');
+
+                textBlockElement.innerHTML = highlightedText;
+                currentWordIndex++;
+                setTimeout(highlightNextWord, 300); // Wait for 0.3 seconds before highlighting the next word
+            }
+        }
+
+        // Start the highlighting process
+        highlightNextWord();
+
+
+    </script>
+</body>
+
+</html>
