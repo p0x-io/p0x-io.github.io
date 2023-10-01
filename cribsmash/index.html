@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>p0x.io | cribsmash</title>
+  <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+  <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+</head>
+<body>
+    <py-config>
+        terminal = true
+        docked = false
+    </py-config>
+
+    <py-script>
+        import random
+        import uuid
+        import json
+        from os.path import exists
+
+        def _get_random_name():
+            genders = ["male", "female"]
+            _gender = random.choice(genders)
+            with open("names.json", "r") as json_file:
+                names_list = json.loads(json_file.read())
+                random_name = random.choice(names_list[_gender])
+            return random_name, _gender
+
+        def _get_random_attack(power):
+            power_range = {"weak": [4, 6], "standard": [6, 8, 10], "strong": [10, 12]}
+            return random.choice(power_range[power])
+
+        def _get_random_stats():
+            _lvl = random.randint(1, 5)
+            _str = random.randint(-2, 5)
+            _dex = random.randint(-2, 5)
+            _con = random.randint(-2, 5)
+            _int = random.randint(-2, 5)
+            _wis = random.randint(-2, 5)
+            _cha = random.randint(-2, 5)
+            _luck = round(random.uniform(-1, 1), 2)
+            _speed = random.randint(-2, 5)
+            _hit = max(_dex, _str)
+            attrs = {
+                "str": _str,
+                "dex": _dex,
+                "con": _con,
+                "int": _int,
+                "wis": _wis,
+                "cha": _cha,
+                "lck": _luck,
+                "spd": _speed,
+            }
+            stats = {
+                "hp": 2 * (10 + attrs["con"] + _lvl),
+                "ac": 10 + attrs["dex"],
+                "speed": 10 + attrs["spd"] + attrs["dex"],
+                "hit": 2 + _hit,
+                "init": attrs["spd"] + attrs["dex"],
+                "luck": _luck,
+            }
+            return stats
+
+        def generate_random_fighter():
+            _uuid = str(uuid.uuid4()).upper()
+            _name, _gender = _get_random_name()
+            _attack_1 = _get_random_attack("weak")
+            _attack_2 = _get_random_attack("standard")
+            _attack_3 = _get_random_attack("strong")
+            _stats = _get_random_stats()
+            _attack_level = (
+                _attack_1
+                + _attack_2
+                + _attack_3
+                + _stats["speed"]
+                + _stats["hit"]
+                + _stats["luck"]
+            )
+            _defense_level = _stats["speed"] + _stats["ac"] + _stats["hp"] + _stats["luck"]
+            
+            _fighter = {
+                "id": _uuid,
+                "name": _name,
+                "gender": _gender,
+                "offensive_power": _attack_level,
+                "defensive_power": _defense_level,
+                "overall_power": round(_defense_level + _attack_level, 2),
+                "attacks": [
+                    {"name": "Weak Attack", "damage": _attack_1, "num": 1},
+                    {"name": "Regular Attack", "damage": _attack_2, "num": 1},
+                    {"name": "Strong Attack", "damage": _attack_3, "num": 1},
+                ],
+                "stats": _stats,
+                "win_loss_record": {"win": 0, "loss": 0},
+            }
+            return _fighter
+        print(generate_random_fighter())
+    </py-script>
+
+</body>
+</html>
