@@ -1,0 +1,79 @@
+<html>
+<head>
+<title>liberal tears</title>
+    <style>
+        * {
+            margin: 0; 
+            padding: 0;}
+        body {
+            background: black;}
+        canvas {
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 90%;
+            position: relative;
+            top: 5%;
+            border: 2px dashed #0000ff;
+            border-radius: 15px;}
+    </style>
+</head>
+    <body>
+        <canvas id="c1"></canvas>
+    </body>
+
+<script>
+var c1 = document.getElementById("c1");
+var ctx = c1.getContext("2d");
+
+//making the canvas full screen
+rel_height = window.innerHeight / 4;
+rel_width = window.innerHeight / 4;
+c1.height = window.innerHeight - rel_height;
+c1.width = window.innerWidth - rel_width;
+
+var english = "liberaltears01"
+//converting the string into an array of single characters
+english = english.split("");
+
+var font_size = 12;
+var font_color = "#0000ff";
+var columns = c1.width/font_size; //number of columns for the rain
+//an array of drops - one per column
+var drops = [];
+//x below is the x coordinate
+//1 = y co-ordinate of the drop(same for every drop initially)
+for(var x = 0; x < columns; x++)
+	drops[x] = 1; 
+
+//drawing the characters
+function draw()
+{
+	//Black BG for the canvas
+	//translucent BG to show trail
+	ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+	ctx.fillRect(0, 0, c1.width, c1.height);
+	
+	ctx.fillStyle = font_color; 
+	ctx.font = font_size + "px arial";
+	//looping over drops
+	for(var i = 0; i < drops.length; i++)
+	{
+		//random character to print
+		var text = english[Math.floor(Math.random()*english.length)];
+		ctx.fillText(text, i*font_size, drops[i]*font_size);
+		
+		//sending the drop back to the top randomly after it has crossed the screen
+		//adding a randomness to the reset to make the drops scattered on the Y axis
+		if(drops[i]*font_size > c1.height && Math.random() > 0.975)
+			drops[i] = 0;
+		
+		//incrementing Y coordinate
+		drops[i]++;
+	}
+}
+
+setInterval(draw, 33);
+</script>
+
+</html>
