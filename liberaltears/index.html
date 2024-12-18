@@ -16,13 +16,23 @@
             top: 5%;
             border: 2px dashed #4bb4b5;
             border-radius: 0px;
-            border-top-right-radius: 10%;
-            border-bottom-left-radius: 10%;
+            border-top-right-radius: 20%;
+            border-top-left-radius: 0%;
+            border-bottom-right-radius: 0%;
+            border-bottom-left-radius: 20%;
+        }
+        .border-button:hover {
+            border-style: solid;
+            transition: border-radius 0.6s linear;
+            border-top-right-radius: 25%;
+            border-top-left-radius: 0%;
+            border-bottom-right-radius: 0%;
+            border-bottom-left-radius: 25%;
         }
     </style>
 </head>
     <body>
-        <canvas id="c1"></canvas>
+        <canvas id="c1" class="border-button"></canvas>
     </body>
 
 <script>
