@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>p0x.io | liberal tears</title>
+<title>p0x.io | ƨɿɒɘɟ lɒɿɘdil</title>
     <style>
         * {
             margin: 0; 
@@ -16,9 +16,6 @@
             top: 5%;
             border: 2px dashed #4bb4b5;
             border-radius: 0px;
-            /* border-left-style: dashed;
-            border-right-style: dashed;
-            border-bottom-style: hidden; */
             border-top-right-radius: 10%;
             border-bottom-left-radius: 10%;
         }
@@ -38,22 +35,31 @@ rel_width = window.innerHeight / 4;
 c1.height = window.innerHeight - rel_height;
 c1.width = window.innerWidth - rel_width;
 
-var english = "liberaltearsLIBERALTEARS!?"
+var english = "liberaltearsLIBERALTEARS!?ƧЯAƎT⅃AЯƎᗺI⅃ƨɿɒɘɟlɒɿɘdil"
 //converting the string into an array of single characters
 english = english.split("");
 
-var font_size = 20;
+
+function getFontSize() {
+    var min_font = 8;
+    var max_font = 24;
+    var rndInt = Math.floor(Math.random() * (max_font - min_font + 1)) + min_font;
+    return rndInt
+}
+
 
 function getColor() {
     var font_color_1 = "#00bfff";
     var font_color_2 = "#00ffff";
-    var font_color_3 = "#4bb4b5"
-    var colors = [font_color_1, font_color_2, font_color_3]
+    var font_color_3 = "#4bb4b5";
+    var font_color_4 = "#ffffff";
+    var font_color_5 = "#0000ff";
+    var colors = [font_color_1, font_color_2, font_color_3, font_color_5]
     var font_color = colors[Math.floor(Math.random() * colors.length)];
     return font_color
     }
 
-
+font_size = 12
 var columns = c1.width/font_size; //number of columns for the rain
 //an array of drops - one per column
 var drops = [];
@@ -71,7 +77,7 @@ function draw()
 	ctx.fillRect(0, 0, c1.width, c1.height);
 	
 	ctx.fillStyle = getColor();
-	ctx.font = font_size + "px arial";
+	ctx.font = getFontSize() + "px arial";
 	//looping over drops
 	for(var i = 0; i < drops.length; i++)
 	{
