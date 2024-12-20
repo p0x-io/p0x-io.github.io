@@ -4,9 +4,12 @@
     <style>
         * {
             margin: 0; 
-            padding: 0;}
+            padding: 0;
+        }
         body {
-            background: black;}
+            background: black;
+            overflow: hidden;
+        }
         canvas {
             display: block;
             margin-left: auto;
@@ -20,14 +23,15 @@
             border-top-left-radius: 0%;
             border-bottom-right-radius: 0%;
             border-bottom-left-radius: 20%;
+            transition: all 2.0s ease-out allow-discrete;
         }
         .border-button:hover {
-            border-style: solid;
-            transition: border-radius 0.6s linear;
-            border-top-right-radius: 25%;
+            transition: border-radius 5.0s ease-in;
+            border-top-right-radius: 100%;
             border-top-left-radius: 0%;
             border-bottom-right-radius: 0%;
-            border-bottom-left-radius: 25%;
+            border-bottom-left-radius: 100%;
+            border: solid;
         }
     </style>
 </head>
