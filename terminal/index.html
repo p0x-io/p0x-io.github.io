@@ -190,7 +190,21 @@
         const cursor = document.getElementById('cursor');
         const terminal = document.getElementById('terminal');
 
+        const insults = [
+            "You're the reason the matrix was never real.",
+            "Your browser history made the CIA blush.",
+            "Go back to r/watchpeopledie, loser.",
+            "Your desperate Google searches are pathetic.",
+            "You're the human equivalent of a failed load.",
+            "Your degeneracy would make serial killers uncomfortable.",
+            "Please rot in the void you crawl from.",
+            "YourSearchHistory.exe has been flagged by the FBI."
+        ];
+
         const menuItems = [
+            { name: 'liberaltears', type: 'dir', link: '../liberaltears/index.html' },
+            { name: 'passphrase', type: 'dir', link: '../passphrase/index.html' },
+            { name: 'rockyou', type: 'dir', link: '../uoykcor/index.html' },
             { name: 'about.txt', type: 'file', link: '#about' },
             { name: 'p0rn', type: 'dir', link: '#p0rn' },
             { name: 'contact.txt', type: 'file', link: '#contact' },
@@ -244,8 +258,13 @@
                 if (menuItem) {
                     if (file === 'readme.txt') {
                         output.innerHTML += `<span class="system-msg">Contents of ${file}:</span>\n\n` +
-                            `<span class="system-msg">Available Commands:</span>\n` +
-                            `  <span class="menu-item">passwd</span> - Generates random alphanumeric password (12-32 chars)\n\n`;
+                            `<span class="system-msg">Directories:</span>\n` +
+                            `  <span class="menu-item">liberaltears</span> - matrix rain\n` +
+                            `  <span class="menu-item">passphrase</span> - wordlist passwords\n` +
+                            `  <span class="menu-item">rockyou</span> - rockyou passwords\n\n` +
+                            `<span class="system-msg">Commands:</span>\n` +
+                            `  <span class="menu-item">passwd</span> - Generates random alphanumeric password (12-32 chars)\n` +
+                            `  <span class="menu-item">clear</span> - Clear terminal\n\n`;
                     } else {
                         output.innerHTML += `[Navigating to ${menuItem.link}]\n<span class="system-msg">Contents of ${file}:</span>\n\nNothing here...\n\n`;
                     }
@@ -256,7 +275,18 @@
                 const dir = command.split(' ')[1];
                 const menuItem = menuItems.find(item => item.name === dir && item.type === 'dir');
                 if (menuItem) {
-                    output.innerHTML += `[Navigating to ${menuItem.link}]\n<span class="system-msg">Nothing here you sick fuck...</span>\n\n`;
+                    if (menuItem.link.startsWith('../')) {
+                        output.innerHTML += `[Redirecting to ${menuItem.link}]...\n\n`;
+                        setTimeout(() => { window.location.href = menuItem.link; }, 1000);
+                    } else if (dir === 'p0rn') {
+                        const randomInsult = insults[Math.floor(Math.random() * insults.length)];
+                        output.innerHTML += `[Accessing ${dir}]...\n\n<span class="error-msg">${randomInsult}</span>\n\n`;
+                    } else if (dir === 'illegalstuff') {
+                        output.innerHTML += `[Access denied]...\n\n`;
+                        setTimeout(() => { window.location.href = '../404.html'; }, 1000);
+                    } else {
+                        output.innerHTML += `[Navigating to ${menuItem.link}]\n<span class="system-msg">Nothing here you sick fuck...</span>\n\n`;
+                    }
                 } else {
                     output.innerHTML += `<span class="error-msg">${dir}: No such directory</span>\n\n`;
                 }

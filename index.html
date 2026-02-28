@@ -180,18 +180,11 @@
   </div>
 
   <script>
-    const pageUrls = [
-      'passphrase/index.html',
-      'uoykcor/index.html',
-      'liberaltears/index.html'
-    ];
-
     const terminal = document.getElementById('terminal');
     const countdown = document.getElementById('countdown');
     let countdownValue = 15;
     let outputInterval;
     let countdownInterval;
-    let cursorPosition = 0;
 
     function getRandomChar() {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
@@ -242,9 +235,7 @@
     }
 
     function goToRandomPage() {
-      const randomIndex = Math.floor(Math.random() * pageUrls.length);
-      const randomPageUrl = pageUrls[randomIndex];
-      window.location.href = randomPageUrl;
+      window.location.href = 'terminal/index.html';
     }
 
     outputInterval = setInterval(outputGarbage, 100);
