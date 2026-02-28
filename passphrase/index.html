@@ -2,63 +2,120 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>p0x.io | p@55p#r@53</title>
     <style>
-        body {
-            background-color: black;
-            color: lime;
-            font-family: monospace;
-            font-size: 36px;
-            line-height: 1.5;
-            text-align: center;
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg: #0a0a0a;
+            --neon: #00ff41;
+            --neon-glow: #39ff14;
+            --neon-dim: #0f3d0f;
+            --scanline: rgba(0, 255, 65, 0.03);
+        }
+
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--neon);
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 28px;
+            line-height: 1.5;
+            text-align: center;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
+            position: relative;
         }
 
-        .cursor {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 2px;
-            height: px;
-            display: inline-block;
-            background-color: lime;
-            animation: blink 1s infinite;
-            transform: translate(-50%, -50%);
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                var(--scanline) 2px,
+                var(--scanline) 4px
+            );
+            pointer-events: none;
+            z-index: 100;
+            animation: scanlines 8s linear infinite;
         }
 
-        @keyframes blink {
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
 
-            0%,
-            100% {
-                background-color: green;
-            }
-
-            50% {
-                background-color: transparent;
-            }
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, var(--bg) 80%);
+            pointer-events: none;
+            z-index: 99;
         }
 
         .word-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            animation: blink 1s infinite;
-            transform: translate(-50%, -50%);
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 0 5px var(--neon), 0 0 10px var(--neon), 0 0 20px var(--neon);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.85; }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 32px;
+            background-color: var(--neon-glow);
+            animation: blink 0.8s step-end infinite;
+            vertical-align: middle;
+            margin-left: 4px;
+            box-shadow: 0 0 5px var(--neon), 0 0 10px var(--neon);
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .status {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 12px;
+            color: var(--neon-dim);
+            text-shadow: 0 0 3px var(--neon-dim);
         }
     </style>
 </head>
 
 <body>
-    <div class="word-container" id="wordsDisplay">
-        <!-- Random words will be displayed here -->
+    <div class="vignette"></div>
+    <div class="word-container">
+        <span id="wordsDisplay"></span><span class="cursor"></span>
     </div>
+    <div class="status">[ rotating in 30s ]</div>
 
     <script src="wordlist.js"></script>
     <script>
@@ -70,10 +127,10 @@
         function displayRandomWords() {
             const wordsDisplay = document.getElementById('wordsDisplay');
             const randomWords = getRandomWords(wordList, 4);
-
             wordsDisplay.textContent = randomWords.join(' ');
         }
-        window.onload = displayRandomWords
+
+        window.onload = displayRandomWords;
         setInterval(displayRandomWords, 30000);
     </script>
 </body>

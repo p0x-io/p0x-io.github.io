@@ -8,40 +8,238 @@
   <link href="https://hachyderm.io/@poxonus" rel="me">
   <title>p0x.io | localhost</title>
   <style>
-    body {
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+    :root {
+      --bg: #0a0a0a;
+      --bg-dim: #050505;
+      --neon: #00ff41;
+      --neon-dim: #0f3d0f;
+      --neon-glow: #39ff14;
+      --scanline: rgba(0, 255, 65, 0.03);
+    }
+
+    * {
       margin: 0;
       padding: 0;
-      background-color: black;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--neon);
+      font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 14px;
+      overflow: hidden;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    #terminal {
+      width: 100%;
+      height: 100%;
+      padding: 20px;
+      background: var(--bg);
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-y: auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    #terminal::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        var(--scanline) 2px,
+        var(--scanline) 4px
+      );
+      pointer-events: none;
+      z-index: 100;
+      animation: scanlines 8s linear infinite;
+    }
+
+    @keyframes scanlines {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(4px); }
+    }
+
+    .ascii-art {
+      color: var(--neon-glow);
+      text-shadow: 0 0 5px var(--neon), 0 0 10px var(--neon), 0 0 20px var(--neon);
+      font-size: 12px;
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+
+    .prompt {
+      color: var(--neon-glow);
+      text-shadow: 0 0 5px var(--neon);
+    }
+
+    .output-line {
+      margin: 2px 0;
+      text-shadow: 0 0 3px var(--neon-dim);
+    }
+
+    .garbage {
+      display: inline;
+      text-shadow: 0 0 2px var(--neon);
     }
 
     .cursor {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 2px;
-      height: 36px;
-      background-color: lime;
-      animation: blink 1s infinite;
-      transform: translate(-50%, -50%);
+      display: inline-block;
+      width: 8px;
+      height: 16px;
+      background-color: var(--neon);
+      animation: blink 0.8s step-end infinite;
+      vertical-align: middle;
+      box-shadow: 0 0 5px var(--neon), 0 0 10px var(--neon);
     }
 
     @keyframes blink {
-      50% {
+      50% { opacity: 0; }
+    }
+
+    #countdown {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      font-size: 18px;
+      color: var(--neon);
+      text-shadow: 0 0 5px var(--neon), 0 0 10px var(--neon);
+      z-index: 50;
+      font-weight: bold;
+    }
+
+    .error-msg {
+      color: #ff0040;
+      text-shadow: 0 0 5px #ff0040, 0 0 10px #ff0040, 0 0 20px #ff0040;
+      animation: glitch 0.3s infinite;
+    }
+
+    @keyframes glitch {
+      0% { transform: translate(0); }
+      20% { transform: translate(-2px, 2px); }
+      40% { transform: translate(-2px, -2px); }
+      60% { transform: translate(2px, 2px); }
+      80% { transform: translate(2px, -2px); }
+      100% { transform: translate(0); }
+    }
+
+    .fadeOut {
+      animation: fadeOut 1s forwards;
+    }
+
+    @keyframes fadeOut {
+      to {
         opacity: 0;
       }
+    }
+
+    .vignette {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(ellipse at center, transparent 0%, var(--bg) 90%);
+      pointer-events: none;
+      z-index: 99;
     }
   </style>
 </head>
 
 <body>
-  <div class="cursor"></div>
+  <div class="vignette"></div>
+  <div id="countdown">[ 15 ]</div>
+  <div id="terminal">
+<span class="ascii-art">
+░▒▓███████▓▒░░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░ 
+░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
+░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
+░▒▓███████▓▒░░▒▓█▓▒░░▒▓█▓▒░░▒▓██████▓▒░  
+░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
+░▒▓█▓▒░      ░▒▓█▓▒░░▒▓█▓▒░▒▓█▓▒░░▒▓█▓▒░ 
+░▒▓█▓▒░      ░▒▓████████▓▒░▒▓█▓▒░░▒▓█▓▒░ 
+                                         
+</span>
+
+<span class="prompt">root@p0x:~$</span> <span class="output-line">initializing sequence...</span>
+<span class="output-line">> establishing connection to the haunted rectum...</span>
+<span class="output-line">> system ready.</span>
+<span class="output-line"></span>
+<span class="cursor"></span>
+  </div>
+
   <script>
     const pageUrls = [
       'passphrase/index.html',
       'uoykcor/index.html',
-      'shampoo/index.html',
       'liberaltears/index.html'
     ];
+
+    const terminal = document.getElementById('terminal');
+    const countdown = document.getElementById('countdown');
+    let countdownValue = 15;
+    let outputInterval;
+    let countdownInterval;
+    let cursorPosition = 0;
+
+    function getRandomChar() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+      return chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    function getRandomFontSize() {
+      return Math.floor(Math.random() * 10) + 8;
+    }
+
+    function getRandomFontFamily() {
+      const fonts = ['JetBrains Mono', 'Fira Code', 'Courier New', 'Monaco', 'Consolas', 'DejaVu Sans Mono'];
+      return fonts[Math.floor(Math.random() * fonts.length)];
+    }
+
+    function outputGarbage() {
+      const garbage = Array.from({length: 15}, () => {
+        const char = getRandomChar();
+        const size = getRandomFontSize();
+        const font = getRandomFontFamily();
+        const opacity = (Math.random() * 0.5 + 0.5).toFixed(2);
+        return `<span class="garbage" style="font-size: ${size}px; font-family: ${font}; opacity: ${opacity};">${char}</span>`;
+      }).join('');
+      
+      const terminalContent = terminal.innerHTML;
+      const cursorIndex = terminalContent.lastIndexOf('<span class="cursor"></span>');
+      const beforeCursor = terminalContent.substring(0, cursorIndex);
+      const afterCursor = terminalContent.substring(cursorIndex);
+      
+      terminal.innerHTML = beforeCursor + garbage + afterCursor;
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    function updateCountdown() {
+      countdownValue--;
+      countdown.textContent = `[ ${countdownValue.toString().padStart(2, '0')} ]`;
+      
+      if (countdownValue <= 0) {
+        clearInterval(outputInterval);
+        clearInterval(countdownInterval);
+        terminal.innerHTML = '<span class="error-msg">ERROR: SYSTEM COMPROMISED</span><span class="cursor"></span>';
+        
+        setTimeout(() => {
+          terminal.classList.add('fadeOut');
+          setTimeout(goToRandomPage, 1000);
+        }, 5000);
+      }
+    }
 
     function goToRandomPage() {
       const randomIndex = Math.floor(Math.random() * pageUrls.length);
@@ -49,7 +247,8 @@
       window.location.href = randomPageUrl;
     }
 
-    setInterval(goToRandomPage, 15000);
+    outputInterval = setInterval(outputGarbage, 100);
+    countdownInterval = setInterval(updateCountdown, 1000);
   </script>
 </body>
 

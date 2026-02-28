@@ -1,94 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>p0x.io | uoykcor</title>
-  <style>
-    body {
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>p0x.io | uoykcor</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
 
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      position: absolute;
-      left: 25%;
-      height: 100vh;
-      margin: 0;
-      background-color: black;
-      color: lime;
-      font-family: monospace;
-      font-size: 36px;
-    }
-    .animated-letter {
-      display: inline-block;
-      font-size: 36px;
-      font-weight: bold;
-      animation: colorChange 3s infinite;
-    }
-    @keyframes colorChange {
-      0% {
-        color: green; /* Green */
-      }
-      25% {
-        color: lime; /* Lighter Green */
-      }
-      50% {
-        color: yellowgreen; /* Even Lighter Green */
-      }
-      75% {
-        color: lime; /* Lighter Green */
-      }
-      100% {
-        color: green; /* Green */
-      }
-    }
-  </style>
+        :root {
+            --bg: #0a0a0a;
+            --neon: #00ff41;
+            --neon-glow: #39ff14;
+            --neon-dim: #0f3d0f;
+            --scanline: rgba(0, 255, 65, 0.03);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--neon);
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 28px;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                var(--scanline) 2px,
+                var(--scanline) 4px
+            );
+            pointer-events: none;
+            z-index: 100;
+            animation: scanlines 8s linear infinite;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, var(--bg) 80%);
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .label {
+            color: var(--neon-dim);
+            text-shadow: 0 0 3px var(--neon-dim);
+            font-size: 20px;
+        }
+
+        #randomWordContainer {
+            text-shadow: 0 0 5px var(--neon), 0 0 10px var(--neon), 0 0 20px var(--neon);
+        }
+
+        .animated-letter {
+            display: inline-block;
+            font-weight: bold;
+            animation: colorChange 3s infinite;
+        }
+
+        @keyframes colorChange {
+            0% { color: var(--neon-dim); }
+            25% { color: var(--neon); }
+            50% { color: var(--neon-glow); }
+            75% { color: var(--neon); }
+            100% { color: var(--neon-dim); }
+        }
+
+        .status {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 12px;
+            color: var(--neon-dim);
+            text-shadow: 0 0 3px var(--neon-dim);
+        }
+    </style>
 </head>
+
 <body>
-  password: 
-  <div id="randomWordContainer">
-  <!-- The random word will be inserted here dynamically -->
-  </div>
+    <div class="vignette"></div>
+    <div class="container">
+        <span class="label">password:</span>
+        <div id="randomWordContainer"></div>
+    </div>
+    <div class="status">[ rotating every 3s ]</div>
 
-  <script src="rockyou-30.js"></script>
-  <script>
+    <script src="rockyou-30.js"></script>
+    <script>
+        function getRandomWords(wordsList, numWords) {
+            const shuffledWords = wordsList.sort(() => 0.5 - Math.random());
+            return shuffledWords.slice(0, numWords);
+        }
 
+        function animateWord(word) {
+            const randomWordContainer = document.getElementById('randomWordContainer');
+            randomWordContainer.innerHTML = '';
 
-    function getRandomWords(wordsList, numWords) {
-        const shuffledWords = wordsList.sort(() => 0.5 - Math.random());
-        return shuffledWords.slice(0, numWords);
-    }
+            for (const letter of word) {
+                const animatedLetter = document.createElement('span');
+                animatedLetter.textContent = letter;
+                animatedLetter.classList.add('animated-letter');
+                randomWordContainer.appendChild(animatedLetter);
+            }
+        }
 
-    function displayRandomWords() {
-        const wordsDisplay = document.getElementById('wordsDisplay');
-        const randomWords = getRandomWords(wordList, 1);
+        function startAnimation() {
+            const randomWord = getRandomWords(wordList, 1);
+            animateWord(randomWord);
+            setTimeout(startAnimation, 3000);
+        }
 
-        wordsDisplay.textContent = randomWords.join(' ');
-    }
-
-
-    function animateWord(word) {
-      const randomWordContainer = document.getElementById('randomWordContainer');
-      randomWordContainer.innerHTML = ''; // Clear previous content
-
-      for (const letter of word) {
-        const animatedLetter = document.createElement('span');
-        animatedLetter.textContent = letter;
-        animatedLetter.classList.add('animated-letter');
-        randomWordContainer.appendChild(animatedLetter);
-      }
-    }
-
-    function startAnimation() {
-      const randomWord = getRandomWords(wordList, 1);
-      animateWord(randomWord);
-
-      // Repeat the animation every 3 seconds
-      setTimeout(startAnimation, 3000);
-    }
-
-    // Start the animation on page load
-    startAnimation();
-  </script>
+        startAnimation();
+    </script>
 </body>
+
 </html>

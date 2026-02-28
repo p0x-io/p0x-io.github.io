@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://infosec.exchange/@poxonus" rel="me">
+  <link href="https://hachyderm.io/@poxonus" rel="me">
+  <title>p0x.io | localhost</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background-color: black;
+      color: lime;
+      font-family: monospace;
+      font-size: 16px;
+      overflow: hidden;
+    }
+
+    #terminal {
+      width: 100%;
+      height: 100vh;
+      background-color: black;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-y: auto;
+    }
+
+    #countdown {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      color: lime;
+      font-size: 20px;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 10px;
+      height: 20px;
+      background-color: lime;
+      animation: blink 1s infinite;
+    }
+
+    .blink {
+      animation: blink 1s infinite;
+    }
+
+    .fadeOut {
+      animation: fadeOut 1s forwards;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="countdown">15</div>
+  <div id="terminal">root@localhost:~$ <span class="cursor"></span></div>
+  <script>
+    const pageUrls = [
+      'passphrase/index.html',
+      'uoykcor/index.html',
+      'shampoo/index.html',
+      'liberaltears/index.html'
+    ];
+
+    const terminal = document.getElementById('terminal');
+    const countdown = document.getElementById('countdown');
+    let countdownValue = 15;
+    let outputInterval;
+    let countdownInterval;
+
+    function getRandomChar() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+-=[]{}|;:,.<>?';
+      return chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    function getRandomFontSize() {
+      return Math.floor(Math.random() * 21) + 10; // 10px to 30px
+    }
+
+    function getRandomFontFamily() {
+      const fonts = ['monospace', 'Courier New', 'Monaco', 'Consolas', 'Lucida Console', 'DejaVu Sans Mono'];
+      return fonts[Math.floor(Math.random() * fonts.length)];
+    }
+
+    function outputGarbage() {
+      const garbage = Array.from({length: 10}, () => {
+        const char = getRandomChar();
+        const size = getRandomFontSize();
+        const font = getRandomFontFamily();
+        return `<span style="font-size: ${size}px; font-family: ${font};">${char}</span>`;
+      }).join('');
+      terminal.innerHTML = terminal.innerHTML.replace('<span class="cursor"></span>', '') + garbage + '<span class="cursor"></span>';
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    function updateCountdown() {
+      countdownValue--;
+      countdown.textContent = countdownValue;
+      if (countdownValue <= 0) {
+        clearInterval(outputInterval);
+        clearInterval(countdownInterval);
+        // Show blinking error
+        terminal.innerHTML = '<span class="blink">ERROR: SYSTEM COMPROMISED</span><span class="cursor"></span>';
+        // After 5 seconds, fade out and redirect
+        setTimeout(() => {
+          terminal.classList.add('fadeOut');
+          setTimeout(goToRandomPage, 1000);
+        }, 5000);
+      }
+    }
+
+    function goToRandomPage() {
+      const randomIndex = Math.floor(Math.random() * pageUrls.length);
+      const randomPageUrl = pageUrls[randomIndex];
+      window.location.href = randomPageUrl;
+    }
+
+    // Start outputting garbage every 100ms
+    outputInterval = setInterval(outputGarbage, 100);
+
+    // Update countdown every second
+    countdownInterval = setInterval(updateCountdown, 1000);
+  </script>
+</body>
+
+</html>
