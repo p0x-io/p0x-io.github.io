@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>localhost</title>
+    <style>
+        body {
+            margin: 0;
+            background: #000;
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #terminal {
+            width: 80%;
+            max-width: 800px;
+            height: 80vh;
+            background: #000;
+            border: 2px solid #0f0;
+            padding: 20px;
+            box-shadow: 0 0 10px #0f0;
+            overflow-y: auto;
+            position: relative;
+        }
+        #output {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .menu-item {
+            color: #0f0;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .menu-item:hover {
+            background: #0f0;
+            color: #000;
+        }
+        .dir {
+            color: rgb(255, 0, 128);
+        }
+        .file {
+            color: #0f0;
+        }
+        #input-line {
+            display: flex;
+            align-items: center;
+        }
+        #prompt {
+            margin-right: 5px;
+        }
+        #input {
+            background: none;
+            border: none;
+            color: #0f0;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            outline: none;
+            flex-grow: 1;
+        }
+        #cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background: #0f0;
+            animation: blink 0.7s infinite;
+        }
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+        .hack-animation {
+            animation: hack 0.5s infinite alternate;
+        }
+        @keyframes hack {
+            0% { color: #0f0; }
+            100% { color: #0a0; }
+        }
+    </style>
+</head>
+<body>
+    <div id="terminal">
+        <div id="output"></div>
+        <div id="input-line">
+            <span id="prompt">root@localhost:~$ </span>
+            <input id="input" type="text" autocomplete="off">
+            <span id="cursor"></span>
+        </div>
+    </div>
+    <script>
+        const output = document.getElementById('output');
+        const input = document.getElementById('input');
+        const cursor = document.getElementById('cursor');
+
+        // Simulate ls -lah output for menu
+        const menuItems = [
+            { name: 'about.txt', type: 'file', link: '#about' },
+            { name: 'p0rn', type: 'dir', link: '#p0rn' },
+            { name: 'contact.txt', type: 'file', link: '#contact' },
+            { name: 'illegalstuff', type: 'dir', link: '#illegalstuff' },
+            { name: 'readme.txt', type: 'file', link: '#readme' }
+        ];
+
+        function displayMenu() {
+            const lsOutput = menuItems.map(item => {
+                const className = item.type === 'dir' ? 'dir' : 'file';
+                return `-rw-r--r--  1 user user  1.2K Jun 30 2025 <a href="${item.link}" class="menu-item ${className}" data-name="${item.name}" data-type="${item.type}">${item.name}</a>`;
+            }).join('\n');
+            output.innerHTML = `dir\n${lsOutput}\n\n`;
+        }
+
+        // Initial display
+        displayMenu();
+
+        // Handle menu item clicks
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('menu-item')) {
+                e.preventDefault(); // Prevent default link grades
+                const name = e.target.getAttribute('data-name');
+                const type = e.target.getAttribute('data-type');
+                const command = type === 'file' ? `cat ${name}` : `cd ${name}`;
+                input.value = command;
+                processCommand(command);
+                input.value = ''; // Clear input after processing command
+            }
+            input.focus();
+        });
+
+        // Handle input
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const command = input.value.trim();
+                processCommand(command);
+                input.value = '';
+            }
+        });
+
+        function processCommand(command) {
+            output.innerHTML += `<span class="prompt">root@localhost:~$ </span>${command}\n`;
+            const commandLower = command.toLowerCase(); // Convert to lowercase for case-insensitive processing
+            if (commandLower === 'ls' || commandLower === 'dir') {
+                displayMenu();
+            } else if (commandLower === 'clear') {
+                output.innerHTML = '';
+                displayMenu();
+            } else if (commandLower.startsWith('cat ')) {
+                const file = command.split(' ')[1]; // Use original command for file name to preserve case
+                const menuItem = menuItems.find(item => item.name === file && item.type === 'file');
+                if (menuItem) {
+                    if (file === 'readme.txt') {
+                        output.innerHTML += `Contents of ${file}:\n\n` +
+                            `Available Commands:\n` +
+                            `  passwd - Generates a random alphanumeric password (12-32 characters)\n` +
+                            `    Example: passwd\n\n`;
+                    } else {
+                        output.innerHTML += `[Navigating to ${menuItem.link}]\nContents of ${file}:\n\n` + 
+                        `Nothing here...\n\n`;
+                    }
+                } else {
+                    output.innerHTML += `${file}: No such file\n\n`;
+                }
+            } else if (commandLower.startsWith('cd ')) {
+                const dir = command.split(' ')[1]; // Use original command for dir name to preserve case
+                const menuItem = menuItems.find(item => item.name === dir && item.type === 'dir');
+                if (menuItem) {
+                    output.innerHTML += `[Navigating to ${menuItem.link}]\n` +
+                    `Nothing here you sick fuck...\n\n`
+                    ;
+                } else {
+                    output.innerHTML += `${dir}: No such directory\n\n`;
+                }
+            } else if (commandLower === 'passwd') {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                const length = Math.floor(Math.random() * (32 - 12 + 1)) + 12;
+                let password = '';
+                for (let i = 0; i < length; i++) {
+                    password += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                output.innerHTML += `Generated password: ${password}\n\n`;
+            } else if (commandLower === 'hack') {
+                output.innerHTML += `<span class="hack-animation">Running nmap...\nFound something...\nRunning exploit...\nAccess granted...</span>\n\n`;
+            } else if (commandLower === 'whoami') {
+                output.innerHTML += `You are...Ned\n\n`;
+            } else if (command) {
+                output.innerHTML += `${command}: command not found\n\n`;
+            }
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // Focus input on click
+        document.addEventListener('click', () => input.focus());
+    </script>
+</body>
+</html>

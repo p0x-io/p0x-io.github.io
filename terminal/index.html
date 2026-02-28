@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>localhost</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg: #0a0a0a;
+            --neon: #00ff41;
+            --neon-glow: #39ff14;
+            --neon-dim: #0f3d0f;
+            --scanline: rgba(0, 255, 65, 0.03);
+            --accent: #ff0040;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--neon);
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 14px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                var(--scanline) 2px,
+                var(--scanline) 4px
+            );
+            pointer-events: none;
+            z-index: 100;
+            animation: scanlines 8s linear infinite;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, var(--bg) 80%);
+            pointer-events: none;
+            z-index: 99;
+        }
+
+        #terminal {
+            width: 80%;
+            max-width: 800px;
+            height: 80vh;
+            background: var(--bg);
+            border: 1px solid var(--neon-dim);
+            padding: 20px;
+            box-shadow: 0 0 10px var(--neon-dim), inset 0 0 30px rgba(0, 255, 65, 0.05);
+            overflow-y: auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        #output {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            text-shadow: 0 0 3px var(--neon-dim);
+        }
+
+        .menu-item {
+            color: var(--neon-glow);
+            text-decoration: none;
+            cursor: pointer;
+            text-shadow: 0 0 5px var(--neon);
+        }
+
+        .menu-item:hover {
+            background: var(--neon);
+            color: var(--bg);
+            text-shadow: none;
+        }
+
+        .dir {
+            color: var(--accent);
+            text-shadow: 0 0 5px var(--accent);
+        }
+
+        .file {
+            color: var(--neon-glow);
+            text-shadow: 0 0 5px var(--neon);
+        }
+
+        #input-line {
+            display: flex;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        #prompt {
+            margin-right: 8px;
+            color: var(--neon-glow);
+            text-shadow: 0 0 5px var(--neon);
+        }
+
+        #input {
+            background: none;
+            border: none;
+            color: var(--neon);
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 14px;
+            outline: none;
+            flex-grow: 1;
+            text-shadow: 0 0 3px var(--neon-dim);
+            caret-color: var(--neon-glow);
+        }
+
+        #cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background: var(--neon-glow);
+            animation: blink 0.8s step-end infinite;
+            box-shadow: 0 0 5px var(--neon), 0 0 10px var(--neon);
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .hack-animation {
+            animation: glitch 0.3s infinite;
+        }
+
+        @keyframes glitch {
+            0% { color: var(--neon-glow); transform: translate(0); }
+            20% { color: var(--neon); transform: translate(-1px, 1px); }
+            40% { color: var(--neon-dim); transform: translate(-1px, -1px); }
+            60% { color: var(--accent); transform: translate(1px, 1px); }
+            80% { color: var(--neon); transform: translate(1px, -1px); }
+            100% { color: var(--neon-glow); transform: translate(0); }
+        }
+
+        .system-msg {
+            color: var(--neon-dim);
+        }
+
+        .error-msg {
+            color: var(--accent);
+            text-shadow: 0 0 5px var(--accent);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="vignette"></div>
+    <div id="terminal">
+        <div id="output"></div>
+        <div id="input-line">
+            <span id="prompt">root@p0x:~$</span>
+            <input id="input" type="text" autocomplete="off" autofocus>
+            <span id="cursor"></span>
+        </div>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+        const input = document.getElementById('input');
+        const cursor = document.getElementById('cursor');
+        const terminal = document.getElementById('terminal');
+
+        const insults = [
+            "You're the reason the matrix was never real.",
+            "Your browser history made the CIA blush.",
+            "Go back to r/watchpeopledie, loser.",
+            "Your desperate Google searches are pathetic.",
+            "You're the human equivalent of a failed load.",
+            "Your degeneracy would make serial killers uncomfortable.",
+            "Please rot in the void you crawl from.",
+            "YourSearchHistory.exe has been flagged by the FBI."
+        ];
+
+        const menuItems = [
+            { name: 'liberaltears', type: 'dir', link: '../liberaltears/index.html' },
+            { name: 'passphrase', type: 'dir', link: '../passphrase/index.html' },
+            { name: 'rockyou', type: 'dir', link: '../uoykcor/index.html' },
+            { name: 'about.txt', type: 'file', link: '#about' },
+            { name: 'p0rn', type: 'dir', link: '#p0rn' },
+            { name: 'contact.txt', type: 'file', link: '#contact' },
+            { name: 'illegalstuff', type: 'dir', link: '#illegalstuff' },
+            { name: 'readme.txt', type: 'file', link: '#readme' }
+        ];
+
+        function displayMenu() {
+            const lsOutput = menuItems.map(item => {
+                const className = item.type === 'dir' ? 'dir' : 'file';
+                return `-rw-r--r--  1 user user  1.2K Jun 30 2025 <a href="${item.link}" class="menu-item ${className}" data-name="${item.name}" data-type="${item.type}">${item.name}</a>`;
+            }).join('\n');
+            output.innerHTML = `<span class="system-msg">dir</span>\n${lsOutput}\n\n`;
+        }
+
+        displayMenu();
+
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('menu-item')) {
+                e.preventDefault();
+                const name = e.target.getAttribute('data-name');
+                const type = e.target.getAttribute('data-type');
+                const command = type === 'file' ? `cat ${name}` : `cd ${name}`;
+                input.value = command;
+                processCommand(command);
+                input.value = '';
+            }
+            input.focus();
+        });
+
+        input.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const command = input.value.trim();
+                processCommand(command);
+                input.value = '';
+            }
+        });
+
+        function processCommand(command) {
+            output.innerHTML += `<span class="prompt">root@p0x:~$</span> ${command}\n`;
+            const commandLower = command.toLowerCase();
+            
+            if (commandLower === 'ls' || commandLower === 'dir') {
+                displayMenu();
+            } else if (commandLower === 'clear') {
+                output.innerHTML = '';
+                displayMenu();
+            } else if (commandLower.startsWith('cat ')) {
+                const file = command.split(' ')[1];
+                const menuItem = menuItems.find(item => item.name === file && item.type === 'file');
+                if (menuItem) {
+                    if (file === 'readme.txt') {
+                        output.innerHTML += `<span class="system-msg">Contents of ${file}:</span>\n\n` +
+                            `<span class="system-msg">Directories:</span>\n` +
+                            `  <span class="menu-item">liberaltears</span> - matrix rain\n` +
+                            `  <span class="menu-item">passphrase</span> - wordlist passwords\n` +
+                            `  <span class="menu-item">rockyou</span> - rockyou passwords\n\n` +
+                            `<span class="system-msg">Commands:</span>\n` +
+                            `  <span class="menu-item">passwd</span> - Generates random alphanumeric password (12-32 chars)\n` +
+                            `  <span class="menu-item">clear</span> - Clear terminal\n\n`;
+                    } else {
+                        output.innerHTML += `[Navigating to ${menuItem.link}]\n<span class="system-msg">Contents of ${file}:</span>\n\nNothing here...\n\n`;
+                    }
+                } else {
+                    output.innerHTML += `<span class="error-msg">${file}: No such file</span>\n\n`;
+                }
+            } else if (commandLower.startsWith('cd ')) {
+                const dir = command.split(' ')[1];
+                const menuItem = menuItems.find(item => item.name === dir && item.type === 'dir');
+                if (menuItem) {
+                    if (menuItem.link.startsWith('../')) {
+                        output.innerHTML += `[Redirecting to ${menuItem.link}]...\n\n`;
+                        setTimeout(() => { window.location.href = menuItem.link; }, 1000);
+                    } else if (dir === 'p0rn') {
+                        const randomInsult = insults[Math.floor(Math.random() * insults.length)];
+                        output.innerHTML += `[Accessing ${dir}]...\n\n<span class="error-msg">${randomInsult}</span>\n\n`;
+                    } else if (dir === 'illegalstuff') {
+                        output.innerHTML += `[Access denied]...\n\n`;
+                        setTimeout(() => { window.location.href = '../404.html'; }, 1000);
+                    } else {
+                        output.innerHTML += `[Navigating to ${menuItem.link}]\n<span class="system-msg">Nothing here you sick fuck...</span>\n\n`;
+                    }
+                } else {
+                    output.innerHTML += `<span class="error-msg">${dir}: No such directory</span>\n\n`;
+                }
+            } else if (commandLower === 'passwd') {
+                const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+                const length = Math.floor(Math.random() * (32 - 12 + 1)) + 12;
+                let password = '';
+                for (let i = 0; i < length; i++) {
+                    password += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                output.innerHTML += `<span class="system-msg">Generated password:</span> ${password}\n\n`;
+            } else if (commandLower === 'hack') {
+                output.innerHTML += `<span class="hack-animation">Running nmap...\nFound something...\nRunning exploit...\nAccess granted...</span>\n\n`;
+            } else if (commandLower === 'whoami') {
+                output.innerHTML += `<span class="system-msg">You are... Ned</span>\n\n`;
+            } else if (command) {
+                output.innerHTML += `<span class="error-msg">${command}: command not found</span>\n\n`;
+            }
+            output.scrollTop = output.scrollHeight;
+        }
+
+        document.addEventListener('click', () => input.focus());
+    </script>
+</body>
+
+</html>

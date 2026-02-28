@@ -2,14 +2,63 @@
 <head>
 <title>p0x.io | ƨɿɒɘɟ lɒɿɘdil</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg: #0a0a0a;
+            --blue-dim: #001a33;
+            --blue-mid: #0066aa;
+            --blue-neon: #00bfff;
+            --blue-bright: #00ffff;
+            --scanline: rgba(0, 191, 255, 0.03);
+        }
+
         * {
             margin: 0; 
             padding: 0;
         }
+
         body {
-            background: black;
+            background: var(--bg);
             overflow: hidden;
+            position: relative;
         }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                var(--scanline) 2px,
+                var(--scanline) 4px
+            );
+            pointer-events: none;
+            z-index: 100;
+            animation: scanlines 8s linear infinite;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, transparent 0%, var(--bg) 80%);
+            pointer-events: none;
+            z-index: 99;
+        }
+
         canvas {
             display: block;
             margin-left: auto;
@@ -24,7 +73,9 @@
             border-bottom-right-radius: 0%;
             border-bottom-left-radius: 20%;
             transition: all 2.0s ease-out allow-discrete;
+            box-shadow: 0 0 10px rgba(0, 191, 255, 0.3), inset 0 0 30px rgba(0, 191, 255, 0.05);
         }
+
         .border-button:hover {
             transition: border-radius 5.0s ease-in;
             border-top-right-radius: 100%;
@@ -32,10 +83,12 @@
             border-bottom-right-radius: 0%;
             border-bottom-left-radius: 100%;
             border: solid;
+            box-shadow: 0 0 20px rgba(0, 191, 255, 0.5), inset 0 0 50px rgba(0, 191, 255, 0.1);
         }
     </style>
 </head>
     <body>
+        <div class="vignette"></div>
         <canvas id="c1" class="border-button"></canvas>
     </body>
 
@@ -43,14 +96,12 @@
 var c1 = document.getElementById("c1");
 var ctx = c1.getContext("2d");
 
-//making the canvas full screen
 rel_height = window.innerHeight / 4;
 rel_width = window.innerHeight / 4;
 c1.height = window.innerHeight - rel_height;
 c1.width = window.innerWidth - rel_width;
 
 var english = "liberaltearsLIBERALTEARS!?ƧЯAƎT⅃AЯƎᗺI⅃ƨɿɒɘɟlɒɿɘdil"
-//converting the string into an array of single characters
 english = english.split("");
 
 
@@ -67,46 +118,45 @@ function getColor() {
     var font_color_2 = "#00ffff";
     var font_color_3 = "#4bb4b5";
     var font_color_4 = "#ffffff";
-    var font_color_5 = "#0000ff";
+    var font_color_5 = "#0066aa";
     var colors = [font_color_1, font_color_2, font_color_3, font_color_5]
     var font_color = colors[Math.floor(Math.random() * colors.length)];
     return font_color
     }
 
 font_size = 12
-var columns = c1.width/font_size; //number of columns for the rain
-//an array of drops - one per column
+var columns = c1.width/font_size;
 var drops = [];
-//x below is the x coordinate
-//1 = y co-ordinate of the drop(same for every drop initially)
-for(var x = 0; x < columns; x++)
-	drops[x] = 1; 
 
-//drawing the characters
+for(var x = 0; x < columns; x++)
+    drops[x] = 1; 
+
+
 function draw()
 {
-	//Black BG for the canvas
-	//translucent BG to show trail
-	ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-	ctx.fillRect(0, 0, c1.width, c1.height);
-	
-	ctx.fillStyle = getColor();
-	ctx.font = getFontSize() + "px arial";
-	//looping over drops
-	for(var i = 0; i < drops.length; i++)
-	{
-		//random character to print
-		var text = english[Math.floor(Math.random()*english.length)];
-		ctx.fillText(text, i*font_size, drops[i]*font_size);
-		
-		//sending the drop back to the top randomly after it has crossed the screen
-		//adding a randomness to the reset to make the drops scattered on the Y axis
-		if(drops[i]*font_size > c1.height && Math.random() > 0.975)
-			drops[i] = 0;
-		
-		//incrementing Y coordinate
-		drops[i]++;
-	}
+    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+    ctx.fillRect(0, 0, c1.width, c1.height);
+    
+    ctx.fillStyle = getColor();
+    ctx.font = getFontSize() + "px JetBrains Mono, monospace";
+    
+    // Add glow effect to text
+    ctx.shadowColor = "#00bfff";
+    ctx.shadowBlur = 4;
+    
+    for(var i = 0; i < drops.length; i++)
+    {
+        var text = english[Math.floor(Math.random()*english.length)];
+        ctx.fillText(text, i*font_size, drops[i]*font_size);
+        
+        if(drops[i]*font_size > c1.height && Math.random() > 0.975)
+            drops[i] = 0;
+        
+        drops[i]++;
+    }
+    
+    // Reset shadow for performance
+    ctx.shadowBlur = 0;
 }
 
 setInterval(draw, 33);
