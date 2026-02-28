@@ -71,8 +71,7 @@
         }
 
         #terminal {
-            width: 80%;
-            max-width: 800px;
+            width: clamp(90%, 95%, 800px);
             height: 80vh;
             background: var(--bg);
             border: 1px solid var(--neon-dim);
@@ -134,6 +133,9 @@
             flex-grow: 1;
             text-shadow: 0 0 3px var(--neon-dim);
             caret-color: var(--neon-glow);
+            padding: 10px;
+            min-height: 44px;
+            border-radius: 4px;
         }
 
         #cursor {
