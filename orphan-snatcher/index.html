@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>p0x.io | orphan-snatcher</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg: #0a0a0a;
+            --neon: #00ff41;
+            --neon-glow: #39ff14;
+            --neon-dim: #0f3d0f;
+            --scanline: rgba(0, 255, 65, 0.03);
+            --accent: #ff0040;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--neon);
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 14px;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                var(--scanline) 2px,
+                var(--scanline) 4px
+            );
+            pointer-events: none;
+            z-index: 100;
+            animation: scanlines 8s linear infinite;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(4px); }
+        }
+
+        #game-container {
+            width: clamp(90%, 95%, 800px);
+            height: 80vh;
+            background: var(--bg);
+            border: 1px solid var(--neon-dim);
+            padding: 20px;
+            box-shadow: 0 0 10px var(--neon-dim), inset 0 0 30px rgba(0, 255, 65, 0.05);
+            overflow-y: auto;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            margin: auto;
+        }
+
+        #output {
+            flex-grow: 1;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            text-shadow: 0 0 3px var(--neon-dim);
+            line-height: 1.6;
+        }
+
+        .title {
+            font-size: clamp(24px, 6vw, 48px);
+            font-weight: bold;
+            color: var(--neon-glow);
+            text-shadow: 0 0 10px var(--neon), 0 0 20px var(--neon);
+            text-align: center;
+            margin-bottom: 20px;
+            animation: flicker 3s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            92% { opacity: 1; }
+            93% { opacity: 0.8; }
+            94% { opacity: 1; }
+            96% { opacity: 0.9; }
+            97% { opacity: 1; }
+        }
+
+        .system-msg {
+            color: var(--neon-dim);
+        }
+
+        .narrative {
+            color: var(--neon);
+            margin: 10px 0;
+        }
+
+        .choice-prompt {
+            color: var(--neon-glow);
+            text-shadow: 0 0 5px var(--neon);
+            margin-top: 20px;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 16px;
+            background-color: var(--neon-glow);
+            animation: blink 0.8s step-end infinite;
+            vertical-align: middle;
+            box-shadow: 0 0 5px var(--neon), 0 0 10px var(--neon);
+        }
+
+        @keyframes blink {
+            50% { opacity: 0; }
+        }
+
+        .success {
+            color: var(--neon-glow);
+            text-shadow: 0 0 10px var(--neon), 0 0 20px var(--neon);
+        }
+
+        .failure {
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent), 0 0 20px var(--accent);
+        }
+
+        .twist {
+            color: #ffff00;
+            text-shadow: 0 0 10px #ffff00, 0 0 20px #ffff00;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin-top: 20px;
+            border: 1px solid var(--neon);
+            background: transparent;
+            color: var(--neon);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            text-shadow: 0 0 5px var(--neon);
+            box-shadow: 0 0 5px var(--neon-dim);
+            transition: all 0.3s ease;
+        }
+
+        .button:hover {
+            background: var(--neon);
+            color: var(--bg);
+            text-shadow: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game-container">
+        <div id="output"></div>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+
+        const gameData = {
+            title: "ORPHAN-SNATCHER",
+            intro: [
+                "> initiating orphan-snatcher.exe...",
+                "> target: St. Jude's Orphanage",
+                "> intelligence: Lizard Person has infiltrated",
+                "> objective: rescue the children",
+                "",
+                "You stand in the rain outside the old stone building.",
+                "The Lizard Person has been kidnapping children for weeks.",
+                "Tonight, you end it.",
+                "",
+                "The back door is unlocked."
+            ],
+            approach: [
+                "You slip through the darkness of the hallway.",
+                "The building is silent. Too silent.",
+                "A light flickers from the basement.",
+                "",
+                "You descend the stairs..."
+            ],
+            endings: {
+                success: {
+                    title: "MISSION COMPLETE",
+                    narrative: [
+                        "You burst into the room.",
+                        "The Lizard Person turns, scales glinting in the dim light.",
+                        "You grab the nearest child and run.",
+                        "",
+                        "Behind you, the Lizard Person screams in fury.",
+                        "You escape into the night.",
+                        "",
+                        "The children are safe.",
+                        "The Lizard Person's operation has been exposed.",
+                        "",
+                        "You are their guardian now."
+                    ],
+                    class: "success"
+                },
+                death: {
+                    title: "MISSION FAILED",
+                    narrative: [
+                        "The basement light flickers on.",
+                        "Standing before you is no human.",
+                        "Seven feet of scaled muscle and hatred.",
+                        "",
+                        "\"You're trespassing,\" it hisses.",
+                        "",
+                        "You don't even have time to scream.",
+                        "The last thing you see is teeth."
+                    ],
+                    class: "failure"
+                },
+                twist: {
+                    title: "MISSION FAILED",
+                    narrative: [
+                        "You grab the child and turn to flee.",
+                        "The small hand in yours grows cold.",
+                        "",
+                        "\"Where are we going?\" the child asks.",
+                        "Its smile stretches too wide.",
+                        "Too many teeth.",
+                        "",
+                        "\"I wanted to thank you,\" it whispers.",
+                        "\"For bringing me my dinner.\"",
+                        "",
+                        "You were never the hero.",
+                        "You were the delivery."
+                    ],
+                    class: "twist"
+                }
+            },
+            replayText: "> press any key or click to play again"
+        };
+
+        let gameState = 'title';
+        let typingInterval = null;
+
+        function typeText(lines, callback, delay = 50) {
+            output.innerHTML = '';
+            let lineIndex = 0;
+            let charIndex = 0;
+            
+            typingInterval = setInterval(() => {
+                if (lineIndex < lines.length) {
+                    if (charIndex === 0) {
+                        const lineContent = lines[lineIndex];
+                        if (lineContent === '') {
+                            output.innerHTML += '<span class="system-msg">▓▓▓</span>\n';
+                            lineIndex++;
+                        } else {
+                            output.innerHTML += '<span class="narrative">';
+                        }
+                    }
+                    
+                    if (lineIndex < lines.length && lines[lineIndex] && charIndex < lines[lineIndex].length) {
+                        output.innerHTML += lines[lineIndex][charIndex];
+                        charIndex++;
+                        
+                        if (charIndex >= lines[lineIndex].length) {
+                            output.innerHTML += '</span>\n';
+                            lineIndex++;
+                            charIndex = 0;
+                        }
+                    }
+                    output.scrollTop = output.scrollHeight;
+                } else {
+                    clearInterval(typingInterval);
+                    if (callback) callback();
+                }
+            }, delay);
+        }
+
+        function showInstant(lines) {
+            output.innerHTML = lines.map(line => {
+                if (line.startsWith('>')) {
+                    return `<span class="system-msg">${line}</span>`;
+                }
+                return `<span class="narrative">${line}</span>`;
+            }).join('\n');
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function showEnding(ending) {
+            output.innerHTML = '';
+            
+            const titleEl = document.createElement('div');
+            titleEl.className = `title ${ending.class}`;
+            titleEl.textContent = ending.title;
+            output.appendChild(titleEl);
+            
+            output.innerHTML += '\n\n';
+            
+            typeText(ending.narrative, () => {
+                output.innerHTML += `\n\n<span class="choice-prompt">${gameData.replayText}</span><span class="cursor"></span>`;
+            }, 40);
+        }
+
+        function startGame() {
+            gameState = 'playing';
+            showInstant(gameData.intro);
+            
+            setTimeout(() => {
+                typeText(gameData.approach, () => {
+                    setTimeout(resolveGame, 3000);
+                });
+            }, 0);
+        }
+
+        function resolveGame() {
+            const rand = Math.random();
+            let ending;
+            
+            if (rand < 0.33) {
+                ending = gameData.endings.success;
+            } else if (rand < 0.66) {
+                ending = gameData.endings.death;
+            } else {
+                ending = gameData.endings.twist;
+            }
+            
+            showEnding(ending);
+            gameState = 'ended';
+        }
+
+        function showTitle() {
+            gameState = 'title';
+            output.innerHTML = `<div class="title">${gameData.title}</div>\n\n` +
+                `<span class="system-msg">a text adventure</span>\n\n` +
+                `<span class="choice-prompt">[ click or press any key to begin ]</span><span class="cursor"></span>`;
+        }
+
+        function handleInput() {
+            if (gameState === 'title') {
+                startGame();
+            } else if (gameState === 'ended') {
+                showTitle();
+            }
+        }
+
+        document.addEventListener('click', handleInput);
+        document.addEventListener('keydown', (e) => {
+            if (gameState !== 'playing') {
+                handleInput();
+            }
+        });
+
+        showTitle();
+    </script>
+</body>
+
+</html>
