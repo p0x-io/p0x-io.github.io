@@ -204,6 +204,7 @@
         ];
 
         const menuItems = [
+            { name: 'orphan-snatcher', type: 'dir', link: '../orphan-snatcher/index.html' },
             { name: 'liberaltears', type: 'dir', link: '../liberaltears/index.html' },
             { name: 'passphrase', type: 'dir', link: '../passphrase/index.html' },
             { name: 'rockyou', type: 'dir', link: '../uoykcor/index.html' },
@@ -261,6 +262,7 @@
                     if (file === 'readme.txt') {
                         output.innerHTML += `<span class="system-msg">Contents of ${file}:</span>\n\n` +
                             `<span class="system-msg">Directories:</span>\n` +
+                            `  <span class="menu-item">orphan-snatcher</span> - text adventure horror\n` +
                             `  <span class="menu-item">liberaltears</span> - matrix rain\n` +
                             `  <span class="menu-item">passphrase</span> - wordlist passwords\n` +
                             `  <span class="menu-item">rockyou</span> - rockyou passwords\n\n` +
